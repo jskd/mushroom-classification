@@ -17,7 +17,7 @@ def get_images():
     total_especes = 0
     total_images = 0
 
-    for i in range(1000):
+    for i in range(800):
         root = "http://mycorance.free.fr/valchamp/"
         current_page = "{}champi{}.htm".format(root, i)
 
@@ -32,7 +32,7 @@ def get_images():
             for each in images:
                 link = each.get('src')
 
-                if ".gif" in link:
+                if ".gif" in link or "pasdephoto.jpg" in link:
                     if "morttete.gif" in link or "attentio.gif" in link:
                         toxic = True
                 else:
