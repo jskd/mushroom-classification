@@ -11,6 +11,8 @@ def make_soup(url):
 
 def get_images():
 
+    family_file  = open("family_list", "a")
+
     if not os.path.exists(DIR_PATH):
         os.makedirs(DIR_PATH)
     os.chdir(DIR_PATH)
@@ -53,6 +55,7 @@ def get_images():
             for fam in famille_liste:
                 if not os.path.exists(fam):
                     os.makedirs(fam)
+                    family_file.write(fam+"\n")
 
                 for each in images_links:
                     filename = each.split('/')[-1]
@@ -66,6 +69,7 @@ def get_images():
         except Exception as e:
             pass
 
+    family_file.close()
     print("Done. {} Species and {} images.".format(total_especes, total_images))
 
 get_images()
