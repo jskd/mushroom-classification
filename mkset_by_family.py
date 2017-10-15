@@ -3,19 +3,22 @@ from urllib.request import urlopen
 from urllib.request import urlretrieve
 import urllib, os, re, unidecode
 
-DIR_PATH = "family_set"
+TRAIN_PATH = "training_set/"
+TEST_PATH = "test_set/"
 
 def make_soup(url):
     html = urlopen(url).read()
     return BeautifulSoup(html, "html.parser")
 
-def get_images():
+def make_sets():
 
-    family_file  = open("family_list", "a")
+    family_file = open("family_list.txt", 'w')
 
-    if not os.path.exists(DIR_PATH):
-        os.makedirs(DIR_PATH)
-    os.chdir(DIR_PATH)
+    if not os.path.exists(TRAIN_PATH):
+        os.makedirs(TRAIN_PATH)
+
+    if not os.path.exists(TEST_PATH):
+        os.makedirs(TEST_PATH)
 
     total_especes = 0
     total_images = 0
@@ -53,14 +56,16 @@ def get_images():
                     images_links += [link]
 
             for fam in famille_liste:
-                if not os.path.exists(fam):
-                    os.makedirs(fam)
+                if not os.path.exists(TRAIN_PATH + fam):
+                    os.makedirs(TRAIN_PATH + fam)
                     family_file.write(fam+"\n")
+                if not os.path.exists(TEST_PATH + fam):
+                    os.makedirs(TEST_PATH + fam)
 
                 for each in images_links:
                     filename = each.split('/')[-1]
                     current = "{}{}".format(root, each)
-                    urlretrieve(current, "{}/{}".format(fam, filename))
+                    urlretrieve(current, "{}/{}/{}".format(TRAIN_PATH, fam, filename))
             
             print("# {}".format(name))
             total_especes += 1
@@ -72,4 +77,4 @@ def get_images():
     family_file.close()
     print("Done. {} Species and {} images.".format(total_especes, total_images))
 
-get_images()
+make_sets()
