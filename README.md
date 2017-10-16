@@ -1,6 +1,6 @@
 ###########################################################
 #
-# NEURAL NETWORK - MUSHROOM PROJECT
+# NEURAL NETWORK - MUSHROOMS PROJECT
 #
 # Authors : Jérome Skoda, Joaquim Lefranc
 #
@@ -39,3 +39,4 @@ Paquets pip nécessaires :
 beautifulsoup4
 opencv-python
 tensorflow
+unidecode

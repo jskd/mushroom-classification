@@ -5,7 +5,7 @@ DATASET_TRAIN = 'training_set/'
 DATASET_TEST = 'test_set/'
 
 # Paramètres des images
-N_CLASSES = 95 
+N_CLASSES = 2 
 IMG_H = 64 
 IMG_W = 64 
 CHANNELS = 3
@@ -14,9 +14,9 @@ CHANNELS = 3
 batch_train_size = 128
 batch_test_size = 128
 
-learning_rate = 0.003
-dropout = 0.0
-num_steps = 10000
+learning_rate = 0.001
+dropout = 0.75
+num_steps = 20000
 display_step = 100
 
 def read_images(path, batch_size):
@@ -52,7 +52,7 @@ def read_images(path, batch_size):
 	image = image * 1.0/127.5 - 1.0
 
 	# Batching
-	X, Y = tf.train.batch([image, label], batch_size=batch_size, capacity=batch_size * 8, num_threads=4)
+	X, Y = tf.train.batch([image, label], batch_size=batch_size, capacity=50000, allow_smaller_final_batch=True, num_threads=4)
 
 	return X, Y
 
@@ -66,11 +66,11 @@ def convolutional_network(x, n_classes, dropout, reuse, is_training):
 	with tf.variable_scope('ConvNet', reuse=reuse):
 
 		# Input Layer
-		conv1 = tf.layers.conv2d(x, 32, 5, activation=tf.nn.relu)
+		conv1 = tf.layers.conv2d(x, 32, 5, activation=tf.nn.relu, padding='SAME')
 		conv1 = tf.layers.max_pooling2d(conv1, 2, 2)
 
 		# Second layer
-		conv2 = tf.layers.conv2d(conv1, 64, 3, activation=tf.nn.relu)
+		conv2 = tf.layers.conv2d(conv1, 64, 3, activation=tf.nn.relu, padding='SAME')
 		conv2 = tf.layers.max_pooling2d(conv2, 2, 2)
 
 		# Fully connecter layer
@@ -117,14 +117,22 @@ with tf.Session() as sess:
 	threads = tf.train.start_queue_runners(sess, coord)
 
 	# Training
+	print("#######################################################################")
+	print("# CLASS [{}] | IMG_SIZE [{},{}] | RATE [{}] | DROPOUT [{}]".format(N_CLASSES, IMG_W, IMG_H, learning_rate, dropout))
+	print("#######################################################################")
 	print("# Training ...")
-	for step in range(1, num_steps+1):
-		if step % display_step == 0:
-			train, loss, t_acc = sess.run([train_op, loss_op, accuracy_training])
-			r_acc = sess.run(accuracy_test)
-			print("  -> Step {} : loss({:.2f}%) t_accuracy({:.2f}%) r_accuracy({:.2f}%)".format(step, loss*100, t_acc*100, r_acc*100))
-		else:
-			sess.run(train_op)
+
+	try:
+		for step in range(1, num_steps+1):
+			if step % display_step == 0:
+				train, loss, t_acc, r_acc = sess.run([train_op, loss_op, accuracy_training, accuracy_test])
+				print("  -> Step {} : loss({:.2f}%) t_accuracy({:.2f}%) r_accuracy({:.2f}%)".format(step, loss*100, t_acc*100, r_acc*100))
+			else:
+				sess.run(train_op)
+
+	except:
+		coord.request_stop()
+		coord.join(threads)
 
 	print("# Saving model ...")
 	#saver.save(sess, 'mushroom_model')
