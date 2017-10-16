@@ -1,17 +1,23 @@
 import tensorflow as tf
 import os
+from datetime import datetime
+
+now = datetime.utcnow().strftime("%Y%m%d%H%M%S")
+root_logdir = "tf_logs"
+logdir = "{}/run-{}/".format(root_logdir, now)
+
 
 DATASET_TRAIN = 'training_set/'
 DATASET_TEST = 'test_set/'
 
 # Paramètres des images
-N_CLASSES = 2 
-IMG_H = 64 
-IMG_W = 64 
+N_CLASSES = 95 
+IMG_H = 20 
+IMG_W = 20 
 CHANNELS = 3
 
 # Paramètres du model
-batch_train_size = 128
+batch_train_size = 64
 batch_test_size = 128
 
 learning_rate = 0.001
@@ -110,6 +116,10 @@ accuracy_test = tf.reduce_mean(tf.cast(correct_pred_test, tf.float32))
 init = tf.global_variables_initializer()
 #saver = tf.train.Saver()
 
+training_summary = tf.summary.scalar('Training accuracy', accuracy_training)
+testing_summary = tf.summary.scalar('Real accuracy', accuracy_test)
+
+file_writer = tf.summary.FileWriter(logdir, tf.get_default_graph())
 
 with tf.Session() as sess:
 	sess.run(init)
@@ -125,19 +135,24 @@ with tf.Session() as sess:
 	try:
 		for step in range(1, num_steps+1):
 			if step % display_step == 0:
-				train, loss, t_acc, r_acc = sess.run([train_op, loss_op, accuracy_training, accuracy_test])
+				train, loss, t_acc, t_acc_sum, r_acc, r_acc_sum = sess.run([train_op, loss_op, accuracy_training, training_summary, accuracy_test, testing_summary])
 				print("  -> Step {} : loss({:.2f}%) t_accuracy({:.2f}%) r_accuracy({:.2f}%)".format(step, loss*100, t_acc*100, r_acc*100))
+				file_writer.add_summary(t_acc_sum, step)
+				file_writer.add_summary(r_acc_sum, step)
 			else:
 				sess.run(train_op)
 
-	except:
+	except Exception as e:
+		print(e)
 		coord.request_stop()
 		coord.join(threads)
+		file_writer.close()
 
 	print("# Saving model ...")
 	#saver.save(sess, 'mushroom_model')
 
 	coord.request_stop()
 	coord.join(threads)
+	file_writer.close()
 
 	
