@@ -1,44 +1,106 @@
 import cv2
 import numpy as np
-import os
+import os, math
 
 DIR_PATH = "training_set/"
 
-list_dir = sorted(os.walk(DIR_PATH).__next__()[1])
-
 nb_images = 0
 
-for d in list_dir:
-	c_dir = os.path.join(DIR_PATH, d)
-	walk = os.walk(c_dir).__next__()
+def rotate_image(mat, angle):
+    height, width = mat.shape[:2]
+    image_center = (width / 2, height / 2)
 
-	for e in walk[2]:
-		if e.endswith('.jpg') or e.endswith('.jpeg'):
-			image_link = os.path.join(c_dir, e)
-			image_name = image_link.split("/")[-1]
+    rotation_mat = cv2.getRotationMatrix2D(image_center, angle, 1)
 
-			if not image_name.startswith('r_') \
-					and not image_name.startswith('f_') \
-					 and not image_name.startswith('rf_'):
+    radians = math.radians(angle)
+    sin = math.sin(radians)
+    cos = math.cos(radians)
+    bound_w = int((height * abs(sin)) + (width * abs(cos)))
+    bound_h = int((height * abs(cos)) + (width * abs(sin)))
 
-				print("# Augmentation of {}".format(image_name))
-				nb_images += 1
+    rotation_mat[0, 2] += ((bound_w / 2) - image_center[0])
+    rotation_mat[1, 2] += ((bound_h / 2) - image_center[1])
 
-				img = cv2.imread(image_link,1)
-				rows,cols, _ = img.shape
+    rotated_mat = cv2.warpAffine(mat, rotation_mat, (bound_w, bound_h))
+    return rotated_mat
 
-				# Rotate 180
-				M = cv2.getRotationMatrix2D((cols/2,rows/2),180,1)
-				dst = cv2.warpAffine(img,M,(cols,rows))
-				cv2.imwrite("{}/r_{}".format(c_dir, image_name), dst)
+def get_images_link(path):
+	links = []
+	list_dir = sorted(os.walk(path).__next__()[1])
 
-				# Flip vertical
-				dst = cv2.flip(img,1)
-				cv2.imwrite("{}/f_{}".format(c_dir, image_name), dst)
+	for d in list_dir:
+		c_dir = os.path.join(path, d)
+		walk = os.walk(c_dir).__next__()
 
-				# Rotate 180 and flip vertical
-				dst = cv2.warpAffine(img,M,(cols,rows))
-				dst = cv2.flip(dst,1)
-				cv2.imwrite("{}/rf_{}".format(c_dir, image_name), dst)
+		for e in walk[2]:
+			if e.endswith('.jpg') or e.endswith('.jpeg'):
+				links.append(os.path.join(c_dir, e))
+	return links
+					
+def apply_rotations(links_liste):
+	for link in links_liste:
+		image_name = link.split("/")[-1]
+		image_path = os.path.dirname(link)
 
-print("Done. {} -> {} images".format(nb_images, nb_images*4))
+		if not image_name.startswith(("r90_", "r180_", "r270_")):
+			img = cv2.imread(link,1)
+			# Rotate 90
+			dst = rotate_image(img, 90)
+			cv2.imwrite("{}/r90_{}".format(image_path, image_name), dst)
+
+			# Rotate 180
+			dst = rotate_image(img, 180)
+			cv2.imwrite("{}/r180_{}".format(image_path, image_name), dst)
+
+			# Rotate 270
+			dst = rotate_image(img, 270)
+			cv2.imwrite("{}/r270_{}".format(image_path, image_name), dst)
+
+def apply_flip(links_liste):
+	for link in links_liste:
+		image_name = link.split("/")[-1]
+		image_path = os.path.dirname(link)
+
+		if not image_name.startswith(("fh_", "fv_")):
+			img = cv2.imread(link,1)
+			# Flip vertical
+			dst = cv2.flip(img,1)
+			cv2.imwrite("{}/fv_{}".format(image_path, image_name), dst)
+
+			# Flip horizontal
+			dst = cv2.flip(img,0)
+			cv2.imwrite("{}/fh_{}".format(image_path, image_name), dst)
+
+def change_brightness(links_liste):
+	for link in links_liste:
+		image_name = link.split("/")[-1]
+		image_path = os.path.dirname(link)
+
+		if not image_name.startswith(("l_", "d_")):
+			img = cv2.imread(link,1)
+
+			# light
+			invGamma = 1.0 / 2
+			table = np.array([((i / 255.0) ** invGamma) * 255
+				for i in np.arange(0, 256)]).astype("uint8")
+			dst = cv2.LUT(img, table)
+			cv2.imwrite("{}/l_{}".format(image_path, image_name), dst)
+
+			# dark
+			invGamma = 1.0 / 0.5
+			table = np.array([((i / 255.0) ** invGamma) * 255
+				for i in np.arange(0, 256)]).astype("uint8")
+			dst = cv2.LUT(img, table)
+			cv2.imwrite("{}/d_{}".format(image_path, image_name), dst)
+			
+
+print("# Getting images links ...")
+images_links = get_images_link(DIR_PATH)
+print("# Change brightness ...")
+change_brightness(images_links)
+print("# Getting images links ...")
+images_links = get_images_link(DIR_PATH)
+print("# Flipping images ...")
+apply_flip(images_links)
+print("# Rotating images ...")
+apply_rotations(images_links)
