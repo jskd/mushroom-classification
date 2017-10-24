@@ -1,3 +1,8 @@
+"""
+Code inspired from : https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/5_DataManagement/build_an_image_dataset.py
+"""
+
+
 import tensorflow as tf
 import os
 from datetime import datetime
@@ -11,14 +16,14 @@ DATASET_TRAIN = 'training_set/'
 DATASET_TEST = 'test_set/'
 
 # Paramètres des images
-N_CLASSES = 95 
-IMG_H = 20 
-IMG_W = 20 
+N_CLASSES = 17 
+IMG_H = 32 
+IMG_W = 32 
 CHANNELS = 3
 
 # Paramètres du model
 batch_train_size = 64
-batch_test_size = 128
+batch_test_size = 64
 
 learning_rate = 0.001
 dropout = 0.75
@@ -58,7 +63,7 @@ def read_images(path, batch_size):
 	image = image * 1.0/127.5 - 1.0
 
 	# Batching
-	X, Y = tf.train.batch([image, label], batch_size=batch_size, capacity=50000, allow_smaller_final_batch=True, num_threads=4)
+	X, Y = tf.train.batch([image, label], batch_size=batch_size, capacity=100000, allow_smaller_final_batch=True, num_threads=4)
 
 	return X, Y
 
@@ -72,11 +77,11 @@ def convolutional_network(x, n_classes, dropout, reuse, is_training):
 	with tf.variable_scope('ConvNet', reuse=reuse):
 
 		# Input Layer
-		conv1 = tf.layers.conv2d(x, 32, 5, activation=tf.nn.relu, padding='SAME')
+		conv1 = tf.layers.conv2d(x, 32, 5, activation=tf.nn.relu)
 		conv1 = tf.layers.max_pooling2d(conv1, 2, 2)
 
 		# Second layer
-		conv2 = tf.layers.conv2d(conv1, 64, 3, activation=tf.nn.relu, padding='SAME')
+		conv2 = tf.layers.conv2d(conv1, 64, 3, activation=tf.nn.relu)
 		conv2 = tf.layers.max_pooling2d(conv2, 2, 2)
 
 		# Fully connecter layer
