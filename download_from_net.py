@@ -9,9 +9,10 @@ def store_raw_images(directory, indice, images_link):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+    line = 1
     for i in image_urls.split('\n'):
         try:
-            info = "(id:"+str(pic_num)+", url:"+i.rstrip()+")"
+            info = "(line:" + str(line).zfill(4) + ", pic-num:" + str(pic_num).zfill(4) + ", url:" + i.rstrip() + ")"
             address = urllib.request.urlopen(i, timeout=1)
             if(address != None):
                 filename = directory+"/"+str(pic_num)+".jpg"
@@ -20,11 +21,12 @@ def store_raw_images(directory, indice, images_link):
                     print("[PASS] Image save " + info)
                     pic_num += 1
                 else:
-                    print("[FAIL] Not image/jpeg " + info)
+                    print("[FAIL] Not jpeg   " + info)
 
         except Exception as e:
-            print("[FAIL] Exception " + info)
+            print("[FAIL] Exception  " + info)
             pass
+        line += 1
 
 
 if __name__ == '__main__':
