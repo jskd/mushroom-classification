@@ -1,22 +1,29 @@
 import urllib.request
+import magic
 import os, sys
 
 def store_raw_images(directory, indice, images_link):
     image_urls = urllib.request.urlopen(images_link).read().decode()
     pic_num = indice
-    
+
     if not os.path.exists(directory):
         os.makedirs(directory)
-        
+
     for i in image_urls.split('\n'):
         try:
             print(str(pic_num) + " : " + i)
             address = urllib.request.urlopen(i, timeout=1)
             if(address != None):
-                urllib.request.urlretrieve(i, directory+"/"+str(pic_num)+".jpg")
-                pic_num += 1
-            
+                filename = directory+"/"+str(pic_num)+".jpg"
+                urllib.request.urlretrieve(i, filename)
+                if(magic.from_file( filename, mime=True ) == "image/jpeg"):
+                    print("[PASS] Image save")
+                    pic_num += 1
+                else:
+                    print("[FAIL] Image drop: not image/jpeg")
+
         except Exception as e:
+            print("[FAIL] Exception")
             pass
 
 
