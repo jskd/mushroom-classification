@@ -11,19 +11,19 @@ def store_raw_images(directory, indice, images_link):
 
     for i in image_urls.split('\n'):
         try:
-            print(str(pic_num) + " : " + i)
+            info = "(id:"+str(pic_num)+", url:"+i.rstrip()+")"
             address = urllib.request.urlopen(i, timeout=1)
             if(address != None):
                 filename = directory+"/"+str(pic_num)+".jpg"
                 urllib.request.urlretrieve(i, filename)
                 if(magic.from_file( filename, mime=True ) == "image/jpeg"):
-                    print("[PASS] Image save")
+                    print("[PASS] Image save " + info)
                     pic_num += 1
                 else:
-                    print("[FAIL] Image drop: not image/jpeg")
+                    print("[FAIL] Not image/jpeg " + info)
 
         except Exception as e:
-            print("[FAIL] Exception")
+            print("[FAIL] Exception " + info)
             pass
 
 
