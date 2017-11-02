@@ -6,6 +6,10 @@
 * Jérome Skoda
 * Joaquim Lefranc
 
+## Génération du dataset imagenet.org
+
+Python3 generate-training-image-net-org.py [repertoire de destination]
+
 ## mkset_by_toxicity
 Récupère les images du site de champignons dans le dossier training_test/ par toxicité
 

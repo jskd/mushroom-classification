@@ -59,7 +59,7 @@ if __name__ == '__main__':
             output_directory =  directory + "/" + name + "/"
             store_raw_images(output_directory, training_set_root + name +'/merge.txt')
 
-    else : print("Usage: download_images <dir_out>")
+    else : print("Usage: generate-training-image-net-org <dir_out>")
 
 
 
