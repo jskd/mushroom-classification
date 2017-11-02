@@ -1,6 +1,18 @@
 import urllib.request
 import magic
-import os, sys
+import os, sys, glob
+
+# form https://stackoverflow.com/questions/26819591/fastest-way-to-combine-several-text-files-without-duplicate-lines
+def merge(patern, output):
+    files = glob.glob(patern)
+    all_lines = []
+    for f in files:
+        with open(f,'r') as fi:
+            all_lines += fi.readlines()
+    all_lines = set(all_lines)
+    with open(output,'w') as fo:
+        fo.write("".join(all_lines))
+
 
 def store_raw_images(directory, urlfile):
     pic_num = 0
@@ -30,12 +42,26 @@ def store_raw_images(directory, urlfile):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 :
+    if len(sys.argv) > 1:
         directory = sys.argv[1]
-        urlfile = sys.argv[2]
+        training_set_root = "./training-image-net-org/"
+        
+        dataset_name = ["mushroom", "cactus", "flower"]
+        for name in dataset_name:
+            merge( training_set_root + name + '/origin/*',  training_set_root + name + '/merge.txt')
+        
+        
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        
+        for name in dataset_name:
+            output_directory =  directory + "/" + name + "/"
+            store_raw_images(output_directory, training_set_root + name +'/merge.txt')
 
-        store_raw_images(directory, urlfile)
+    else : print("Usage: download_images <dir_out>")
 
-    else : print("Usage: download_images <dir_out> <urlfile>")
+
+
+
 
 
