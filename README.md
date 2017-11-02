@@ -32,3 +32,4 @@ Lance l'apprentissage du réseau et le test
 * tensorflow
 * unidecode
 * python-magic
+* glob2
