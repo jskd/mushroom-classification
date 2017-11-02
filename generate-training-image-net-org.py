@@ -21,10 +21,11 @@ def store_raw_images(directory, urlfile):
         os.makedirs(directory)
 
     line = 1
+    num_lines = sum(1 for line in open(urlfile))
     with open(urlfile) as f:
         for i in f:
             try:
-                info = "(line:" + str(line).zfill(4) + ", pic-num:" + str(pic_num).zfill(4) + ", url:" + i.rstrip() + ")"
+                info = "(line:" + str(line).zfill(5) + "/"+ str(num_lines).zfill(5) +", pic-num:" + str(pic_num).zfill(5) + ", url:" + i.rstrip() + ")"
                 address = urllib.request.urlopen(i, timeout=1)
                 if(address != None):
                     filename = directory+"/"+str(pic_num)+".jpg"
@@ -38,7 +39,7 @@ def store_raw_images(directory, urlfile):
             except Exception as e:
                 print("[FAIL] Exception  " + info)
                 pass
-                line += 1
+            line += 1
 
 
 if __name__ == '__main__':
