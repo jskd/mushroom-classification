@@ -14,6 +14,7 @@ def merge(patern, output):
         fo.write("".join(all_lines))
 
 if __name__ == '__main__':
-    merge('./mushroom/origin/*', './mushroom/merge.txt')
-
+    dataset_name = ["mushroom", "cactus", "flower"]
+    for name in dataset_name:
+        merge('./'+ name + '/origin/*', './'+name+'/merge.txt')
 
