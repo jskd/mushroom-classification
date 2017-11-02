@@ -11,7 +11,7 @@ def merge(patern, output):
             all_lines += fi.readlines()
     all_lines = set(all_lines)
     with open(output,'w') as fo:
-        fo.write("".join(all_lines))
+        fo.write("".join( sorted(list(all_lines)) ))
 
 
 def store_raw_images(directory, urlfile):
