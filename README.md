@@ -1,7 +1,7 @@
 
-# NEURAL NETWORK - MUSHROOMS PROJECT
+# NEURAL NETWORK - IMAGE CLASSIFIER PROJECT
 
-## Authors 
+## Authors
 
 * Jérome Skoda
 * Joaquim Lefranc
@@ -25,7 +25,7 @@ Récupère les images à partir d'un fichier d'url provenant de http://image-net
 Permet de nettoyer les images provenant de image-net, en se basant sur les exemples du dossier uglies/
 
 
-## convo_mushrooms.py
+## image_classifier.py
 
 Lance l'apprentissage du réseau et le test
 
