@@ -85,11 +85,11 @@ def change_brightness(links_liste):
 		if not image_name.startswith(("g6_", "g4_", "g2_", "g05_", "g025_")):
 			img = cv2.imread(link,1)
 
-			dst = change_gamma(img, 6)
-			cv2.imwrite("{}/g6_{}".format(image_path, image_name), dst)
+			#dst = change_gamma(img, 6)
+			#cv2.imwrite("{}/g6_{}".format(image_path, image_name), dst)
 
-			dst = change_gamma(img, 4)
-			cv2.imwrite("{}/g4_{}".format(image_path, image_name), dst)
+			#dst = change_gamma(img, 4)
+			#cv2.imwrite("{}/g4_{}".format(image_path, image_name), dst)
 
 			dst = change_gamma(img, 2)
 			cv2.imwrite("{}/g2_{}".format(image_path, image_name), dst)
@@ -97,8 +97,8 @@ def change_brightness(links_liste):
 			dst = change_gamma(img, 0.5)
 			cv2.imwrite("{}/g05_{}".format(image_path, image_name), dst)
 
-			dst = change_gamma(img, 0.25)
-			cv2.imwrite("{}/g025_{}".format(image_path, image_name), dst)
+			#dst = change_gamma(img, 0.25)
+			#cv2.imwrite("{}/g025_{}".format(image_path, image_name), dst)
 
 def blur(links_liste):
 	for link in links_liste:
