@@ -72,16 +72,17 @@ def convolutional_network(x, n_classes, dropout, reuse, is_training):
 		conv3 = tf.layers.conv2d(conv2, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
 		conv3 = tf.layers.max_pooling2d(conv3, 2, 2, padding="VALID")
 
-		conv4 = tf.layers.conv2d(conv3, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		conv4 = tf.layers.max_pooling2d(conv4, 2, 2, padding="VALID")
+		#conv4 = tf.layers.conv2d(conv3, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
+		#conv4 = tf.layers.max_pooling2d(conv4, 2, 2, padding="VALID")
 
-		fc1 = tf.contrib.layers.flatten(conv4)
+		fc1 = tf.contrib.layers.flatten(conv3)
 
 		# Fully connecter layer
 		fc1 = tf.layers.dense(fc1, 1024)
 		fc1 = tf.layers.dropout(fc1, rate=dropout, training=is_training)
 
 		"""
+		ALEXNET
 		c1 = tf.layers.conv2d(x, 96, 11, strides=(4, 4), activation=tf.nn.relu, padding="SAME")
 		c1 = tf.layers.max_pooling2d(c1, 3, 2, padding="VALID")
 
