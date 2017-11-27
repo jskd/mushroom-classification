@@ -94,11 +94,11 @@ def change_brightness(links_liste):
 			#dst = change_gamma(img, 2)
 			#cv2.imwrite("{}/g2_{}".format(image_path, image_name), dst)
 
-			#dst = change_gamma(img, 0.5)
-			#cv2.imwrite("{}/g05_{}".format(image_path, image_name), dst)
+			dst = change_gamma(img, 0.5)
+			cv2.imwrite("{}/g05_{}".format(image_path, image_name), dst)
 
-			dst = change_gamma(img, 0.25)
-			cv2.imwrite("{}/g025_{}".format(image_path, image_name), dst)
+			#dst = change_gamma(img, 0.25)
+			#cv2.imwrite("{}/g025_{}".format(image_path, image_name), dst)
 
 def blur(links_liste):
 	for link in links_liste:
