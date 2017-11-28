@@ -110,17 +110,85 @@ def blur(links_liste):
 			dst = cv2.blur(img,(5,5))
 			cv2.imwrite("{}/b_{}".format(image_path, image_name), dst)
 
+def zoom(links_liste):
+	for link in links_liste:
+		image_name = link.split("/")[-1]
+		image_path = os.path.dirname(link)
+
+		if not image_name.startswith(("z_")):
+			img = cv2.imread(link,1)
+			height, width = img.shape[:2]
+			image_center = (width / 2, height / 2)
+
+			ratio = 1.3
+			img_scaled = cv2.resize(img, (0,0), fx=ratio, fy=ratio)
+
+			offset_h = int(((height*ratio) - height)/2)
+			offset_w = int(((width*ratio) - width)/2)
+
+			dst = img_scaled[offset_h:(height+offset_h), offset_w:(width+offset_w)]
+			cv2.imwrite("{}/z_{}".format(image_path, image_name), dst)
+
+
+def perspective(links_liste):
+	for link in links_liste:
+		image_name = link.split("/")[-1]
+		image_path = os.path.dirname(link)
+
+		if not image_name.startswith(("p_")):
+			img = cv2.imread(link,1)
+			height, width = img.shape[:2]
+			image_center = (width / 2, height / 2)
+
+			pts1 = np.float32([[50,50],[width-100,100],[77,height-80],[width,height]])
+			pts2 = np.float32([[0,0],[width,0],[0,height],[width,height]])
+
+			M = cv2.getPerspectiveTransform(pts1,pts2)
+			dst = cv2.warpPerspective(img,M,(width, height))
+
+			cv2.imwrite("{}/p_{}".format(image_path, image_name), dst)
+
+def noise(links_liste):
+	for link in links_liste:
+		image_name = link.split("/")[-1]
+		image_path = os.path.dirname(link)
+
+		if not image_name.startswith(("nd_", "nl_")):
+			img = cv2.imread(link,1)
+			row,col,ch= img.shape
+			var = 100
+			sigma = var**0.5
+
+			gauss = np.random.normal(60, sigma,(row,col,ch))
+			gauss = gauss.reshape(row,col,ch)
+			dst = img + gauss
+			cv2.imwrite("{}/nl_{}".format(image_path, image_name), dst)
+
+			gauss = np.random.normal(-60, sigma,(row,col,ch))
+			gauss = gauss.reshape(row,col,ch)
+			dst = img + gauss
+			cv2.imwrite("{}/nd_{}".format(image_path, image_name), dst)
+
+
+
+images_links = get_images_link(DIR_PATH)
+
+print("# Change perspective ...")
+perspective(images_links)
+
+print("# Zooming images ...")
+zoom(images_links)
 
 print("# Bluring images ...")
-images_links = get_images_link(DIR_PATH)
 blur(images_links)
 
-print("# Change brightness ...")
 images_links = get_images_link(DIR_PATH)
-change_brightness(images_links)
+print("# Add noise to images ...")
+noise(images_links)
 
 images_links = get_images_link(DIR_PATH)
 print("# Flipping images ...")
 apply_flip(images_links)
+
 print("# Rotating images ...")
 apply_rotations(images_links)
