@@ -44,18 +44,19 @@ def store_raw_images(directory, urlfile):
             if not found:
                 try:
                     info = "(line:" + str(line).zfill(5) + "/"+ str(num_lines).zfill(5) +", url:" + i.rstrip() + ")"
-                    address = urllib.request.urlopen(i, timeout=1)
-                    if address.getcode() != 200 :
+                    request = urllib.request.urlopen(i, timeout=1)
+                    if request.getcode() != 200 :
                         fbw.write(i)
                         print("[FAIL] Reponse error " + info)
-                    elif address.info().get_content_type() != 'image/jpeg' :
+                    elif request.info().get_content_type() != 'image/jpeg' :
                         fbw.write(i)
                         print("[FAIL] Not jpeg      " + info)
                     else:
                         filename = directory+"/"+str(line)+".jpg"
-                        urllib.request.urlretrieve(i, filename)
-                        fgw.write(i)
-                        print("[PASS] Image save    " + info)
+                        with open(filename, 'wb') as fout:
+                            fout.write(request.read())
+                            fgw.write(i)
+                            print("[PASS] Image save    " + info)
 
                 except Exception as e:
                     fbw.write(i)
@@ -64,6 +65,7 @@ def store_raw_images(directory, urlfile):
             else:
                 print("[PASS] Déjà dl "+ str(line))
             line += 1
+            urllib.request.urlcleanup()
     fclose(fg)
     fclose(fb)
 
