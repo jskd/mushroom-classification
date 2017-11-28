@@ -37,7 +37,6 @@ def store_raw_images(directory, urlfile):
     fgw= open(directory+'/good.txt','a')
     fbw= open(directory+'/bad.txt','a')
 
-
     line = 1
     num_lines = sum(1 for line in open(urlfile))
     with open(urlfile) as f:
@@ -48,7 +47,7 @@ def store_raw_images(directory, urlfile):
                 try:
                     info = "(line:" + str(line).zfill(5) + "/"+ str(num_lines).zfill(5) +", pic-num:" + str(pic_num).zfill(5) + ", url:" + i.rstrip() + ")"
                     address = urllib.request.urlopen(i, timeout=1)
-                    if(address != None):
+                    if(address.getcode() == 200):
                         filename = directory+"/"+str(line)+".jpg"
                         urllib.request.urlretrieve(i, filename)
                         if(magic.from_file( filename, mime=True ) == "image/jpeg"):
@@ -59,13 +58,16 @@ def store_raw_images(directory, urlfile):
                             os.remove(filename)
                             fbw.write(i)
                             print("[FAIL] Not jpeg   " + info)
+                    else:
+                        fbw.write(i)
+                        print("[FAIL] url code != 200 " + info)
 
                 except Exception as e:
                     fbw.write(i)
                     print("[FAIL] Exception  " + info)
                     pass
             else:
-                print("[PASS] Déjà dl")
+                print("[PASS] Déjà dl "+ str(line))
             line += 1
     fclose(fg)
     fclose(fb)
