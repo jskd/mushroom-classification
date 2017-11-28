@@ -25,8 +25,6 @@ def found_in_file(fname, search):
     return False
 
 def store_raw_images(directory, urlfile):
-    pic_num = 0
-
     if not os.path.exists(directory):
         os.makedirs(directory)
 
@@ -45,26 +43,23 @@ def store_raw_images(directory, urlfile):
 
             if not found:
                 try:
-                    info = "(line:" + str(line).zfill(5) + "/"+ str(num_lines).zfill(5) +", pic-num:" + str(pic_num).zfill(5) + ", url:" + i.rstrip() + ")"
+                    info = "(line:" + str(line).zfill(5) + "/"+ str(num_lines).zfill(5) +", url:" + i.rstrip() + ")"
                     address = urllib.request.urlopen(i, timeout=1)
-                    if(address.getcode() == 200):
+                    if address.getcode() != 200 :
+                        fbw.write(i)
+                        print("[FAIL] Reponse error " + info)
+                    elif address.info().get_content_type() != 'image/jpeg' :
+                        fbw.write(i)
+                        print("[FAIL] Not jpeg      " + info)
+                    else:
                         filename = directory+"/"+str(line)+".jpg"
                         urllib.request.urlretrieve(i, filename)
-                        if(magic.from_file( filename, mime=True ) == "image/jpeg"):
-                            fgw.write(i)
-                            print("[PASS] Image save " + info)
-                            pic_num += 1
-                        else:
-                            os.remove(filename)
-                            fbw.write(i)
-                            print("[FAIL] Not jpeg   " + info)
-                    else:
-                        fbw.write(i)
-                        print("[FAIL] url code != 200 " + info)
+                        fgw.write(i)
+                        print("[PASS] Image save    " + info)
 
                 except Exception as e:
                     fbw.write(i)
-                    print("[FAIL] Exception  " + info)
+                    print("[FAIL] Exception     " + info)
                     pass
             else:
                 print("[PASS] Déjà dl "+ str(line))
