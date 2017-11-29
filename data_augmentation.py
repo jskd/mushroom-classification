@@ -107,7 +107,7 @@ def blur(links_liste):
 
 		if not image_name.startswith(("b_")):
 			img = cv2.imread(link,1)
-			dst = cv2.blur(img,(5,5))
+			dst = cv2.blur(img,(6,6))
 			cv2.imwrite("{}/b_{}".format(image_path, image_name), dst)
 
 def zoom(links_liste):
@@ -120,7 +120,7 @@ def zoom(links_liste):
 			height, width = img.shape[:2]
 			image_center = (width / 2, height / 2)
 
-			ratio = 1.3
+			ratio = 1.4
 			img_scaled = cv2.resize(img, (0,0), fx=ratio, fy=ratio)
 
 			offset_h = int(((height*ratio) - height)/2)
@@ -159,7 +159,7 @@ def noise(links_liste):
 			var = 100
 			sigma = var**0.5
 
-			gauss = np.random.normal(60, sigma,(row,col,ch))
+			gauss = np.random.normal(80, sigma,(row,col,ch))
 			gauss = gauss.reshape(row,col,ch)
 			dst = img + gauss
 			cv2.imwrite("{}/nl_{}".format(image_path, image_name), dst)
@@ -173,8 +173,8 @@ def noise(links_liste):
 
 images_links = get_images_link(DIR_PATH)
 
-print("# Change perspective ...")
-perspective(images_links)
+#print("# Change perspective ...")
+#perspective(images_links)
 
 print("# Zooming images ...")
 zoom(images_links)
@@ -182,13 +182,13 @@ zoom(images_links)
 print("# Bluring images ...")
 blur(images_links)
 
-images_links = get_images_link(DIR_PATH)
+#images_links = get_images_link(DIR_PATH)
 print("# Add noise to images ...")
 noise(images_links)
 
-images_links = get_images_link(DIR_PATH)
-print("# Flipping images ...")
-apply_flip(images_links)
+#images_links = get_images_link(DIR_PATH)
+#print("# Flipping images ...")
+#apply_flip(images_links)
 
-print("# Rotating images ...")
-apply_rotations(images_links)
+#print("# Rotating images ...")
+#apply_rotations(images_links)
