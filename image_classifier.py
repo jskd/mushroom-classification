@@ -15,8 +15,8 @@ N_CLASSES = 17
 IMG_H = 64
 IMG_W = 64
 CHANNELS = 3
-batch_train_size = 128
-batch_test_size = 128
+batch_train_size = 256
+batch_test_size = 256
 
 def read_images(path, batch_size):
 	images, labels = [], []
@@ -55,98 +55,35 @@ X_, Y_ = read_images(DATASET_TEST, batch_test_size)
 
 # Paramètres du model
 learning_rate = 0.001
-dropout = 0.75
-num_steps = 50000
+dropout = 0.50
+num_steps = 20000
 display_step = 100
 
 def convolutional_network(x, n_classes, dropout, reuse, is_training):
 	with tf.variable_scope('ConvNet', reuse=reuse):
 
-		"""
-		# VGG 16
-		c1 = tf.layers.conv2d(x, 64, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c2 = tf.layers.conv2d(c1, 64, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c2 = tf.layers.max_pooling2d(c2, 2, 2, padding="SAME")
-
-		c3 = tf.layers.conv2d(c2, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c4 = tf.layers.conv2d(c3, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c4 = tf.layers.max_pooling2d(c4, 2, 2, padding="SAME")
-
-		c5 = tf.layers.conv2d(c4, 256, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c6 = tf.layers.conv2d(c5, 256, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c7 = tf.layers.conv2d(c6, 256, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c7 = tf.layers.max_pooling2d(c7, 2, 2, padding="SAME")
-
-		c8 = tf.layers.conv2d(c7, 512, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c9 = tf.layers.conv2d(c8, 512, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c10 = tf.layers.conv2d(c9, 512, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c10 = tf.layers.max_pooling2d(c10, 2, 2, padding="SAME")
-
-		c11 = tf.layers.conv2d(c10, 512, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c12 = tf.layers.conv2d(c11, 512, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c13 = tf.layers.conv2d(c12, 512, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		c13 = tf.layers.max_pooling2d(c13, 2, 2, padding="SAME")
-
-		fc14 = tf.contrib.layers.flatten(c13)
-		# Fully connecter layer
-		fc14 = tf.layers.dense(fc14, 4096, activation=tf.nn.relu)
-		fc14 = tf.layers.dropout(fc14, rate=dropout, training=is_training)
-
-		fc15 = tf.layers.dense(fc14, 4096, activation=tf.nn.relu)
-		fc15 = tf.layers.dropout(fc15, rate=dropout, training=is_training)
-
-		# Output layer
-		out = tf.layers.dense(fc15, n_classes)
-		if not is_training : out = tf.nn.softmax(out)
-		"""
-		"""
-		#ALEXNET
-		c1 = tf.layers.conv2d(x, 96, 11, strides=(4, 4), activation=tf.nn.relu, padding="SAME")
+		# Input Layer
+		c1 = tf.layers.conv2d(x, 96, 5, strides=(3, 3), activation=tf.nn.relu, padding="SAME")
 		c1 = tf.layers.max_pooling2d(c1, 2, 2, padding="SAME")
+		#c1 = tf.nn.local_response_normalization(c1)
 
-		c2 = tf.layers.conv2d(c1, 256, 5, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
+		c2 = tf.layers.conv2d(c1, 192, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
 		c2 = tf.layers.max_pooling2d(c2, 2, 2, padding="SAME")
+		#c2 = tf.nn.local_response_normalization(c2)
 
 		c3 = tf.layers.conv2d(c2, 384, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
+		c3 = tf.layers.max_pooling2d(c3, 2, 2, padding="SAME")
 
-		c4 = tf.layers.conv2d(c3, 384, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-
-		c5 = tf.layers.conv2d(c4, 256, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		#c5 = tf.layers.max_pooling2d(c5, 2, 2, padding="SAME")
-
-		fc6 = tf.contrib.layers.flatten(c5)
-
-		fc7 = tf.layers.dense(fc6, 4096, activation=tf.nn.relu)
-		fc7 = tf.layers.dropout(fc7, rate=dropout, training=is_training)
-
-		fc8 = tf.layers.dense(fc7, 4096, activation=tf.nn.relu)
-		fc8 = tf.layers.dropout(fc8, rate=dropout, training=is_training)
-
-		# Output layer
-		out = tf.layers.dense(fc8, n_classes)
-		if not is_training : out = tf.nn.softmax(out)
-		"""
-
-		# Input Layer
-		conv1 = tf.layers.conv2d(x, 32, 5, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		conv1 = tf.layers.max_pooling2d(conv1, 2, 2, padding="SAME")
-
-		conv2 = tf.layers.conv2d(conv1, 64, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		conv2 = tf.layers.max_pooling2d(conv2, 2, 2, padding="SAME")
-
-		conv3 = tf.layers.conv2d(conv2, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
-		conv3 = tf.layers.max_pooling2d(conv3, 2, 2, padding="SAME")
-
-		fc4 = tf.contrib.layers.flatten(conv3)
+		fc1 = tf.contrib.layers.flatten(c3)
 		# Fully connecter layer
-		fc4 = tf.layers.dense(fc4, 1024, activation=tf.nn.relu)
-		fc4 = tf.layers.dropout(fc4, rate=dropout, training=is_training)
+		fc1 = tf.layers.dense(fc1, 1024, activation=tf.nn.relu)
+		fc1 = tf.layers.dropout(fc1, rate=dropout, training=is_training)
 
-		fc5 = tf.layers.dense(fc4, 512, activation=tf.nn.relu)
-		fc5 = tf.layers.dropout(fc5, rate=(dropout-0.25), training=is_training)
+		fc2 = tf.layers.dense(fc1, 512, activation=tf.nn.relu)
+		fc2 = tf.layers.dropout(fc2, rate=(dropout-0.25), training=is_training)
 
 		# Output layer
-		out = tf.layers.dense(fc5, n_classes)
+		out = tf.layers.dense(fc2, n_classes)
 		if not is_training : out = tf.nn.softmax(out)
 
 
