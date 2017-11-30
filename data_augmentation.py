@@ -105,20 +105,17 @@ def blur(links_liste):
 		image_name = link.split("/")[-1]
 		image_path = os.path.dirname(link)
 
-		if not image_name.startswith(("b1_", "b2_", "b3_", "b4_")):
+		if not image_name.startswith(("b1_", "b2_", "b3_")):
 			img = cv2.imread(link,1)
 
-			dst = cv2.blur(img,(3,3))
+			dst = cv2.blur(img,(6,1))
 			cv2.imwrite("{}/b1_{}".format(image_path, image_name), dst)
 
-			dst = cv2.blur(img,(5,1))
+			dst = cv2.blur(img,(1,6))
 			cv2.imwrite("{}/b2_{}".format(image_path, image_name), dst)
 
-			dst = cv2.blur(img,(1,5))
+			dst = cv2.blur(img,(6,6))
 			cv2.imwrite("{}/b3_{}".format(image_path, image_name), dst)
-
-			dst = cv2.blur(img,(5,5))
-			cv2.imwrite("{}/b4_{}".format(image_path, image_name), dst)
 
 
 
@@ -185,7 +182,7 @@ def noise(links_liste):
 		image_name = link.split("/")[-1]
 		image_path = os.path.dirname(link)
 
-		if not image_name.startswith(("n1_", "n2_", "n3_", "n4_")):
+		if not image_name.startswith(("n1_", "n2_", "n3_", "n4_", "n5_")):
 			img = cv2.imread(link,1)
 			row,col,ch= img.shape
 			var = 100
@@ -221,7 +218,7 @@ def noise(links_liste):
 			gauss = np.random.normal(0, sigma,(row,col,ch))
 			gauss = gauss.reshape(row,col,ch)
 			dst = img + gauss
-			cv2.imwrite("{}/n4_{}".format(image_path, image_name), dst)
+			cv2.imwrite("{}/n5_{}".format(image_path, image_name), dst)
 
 
 
