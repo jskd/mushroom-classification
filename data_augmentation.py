@@ -105,29 +105,56 @@ def blur(links_liste):
 		image_name = link.split("/")[-1]
 		image_path = os.path.dirname(link)
 
-		if not image_name.startswith(("b_")):
+		if not image_name.startswith(("b1_", "b2_", "b3_", "b4_")):
 			img = cv2.imread(link,1)
-			dst = cv2.blur(img,(6,6))
-			cv2.imwrite("{}/b_{}".format(image_path, image_name), dst)
+
+			dst = cv2.blur(img,(3,3))
+			cv2.imwrite("{}/b1_{}".format(image_path, image_name), dst)
+
+			dst = cv2.blur(img,(5,1))
+			cv2.imwrite("{}/b2_{}".format(image_path, image_name), dst)
+
+			dst = cv2.blur(img,(1,5))
+			cv2.imwrite("{}/b3_{}".format(image_path, image_name), dst)
+
+			dst = cv2.blur(img,(5,5))
+			cv2.imwrite("{}/b4_{}".format(image_path, image_name), dst)
+
+
 
 def zoom(links_liste):
 	for link in links_liste:
 		image_name = link.split("/")[-1]
 		image_path = os.path.dirname(link)
 
-		if not image_name.startswith(("z_")):
+		if not image_name.startswith(("z1_", "z2_", "z3_")):
 			img = cv2.imread(link,1)
 			height, width = img.shape[:2]
 			image_center = (width / 2, height / 2)
 
-			ratio = 1.4
+			ratio = 1.3
 			img_scaled = cv2.resize(img, (0,0), fx=ratio, fy=ratio)
-
 			offset_h = int(((height*ratio) - height)/2)
 			offset_w = int(((width*ratio) - width)/2)
 
 			dst = img_scaled[offset_h:(height+offset_h), offset_w:(width+offset_w)]
-			cv2.imwrite("{}/z_{}".format(image_path, image_name), dst)
+			cv2.imwrite("{}/z1_{}".format(image_path, image_name), dst)
+
+			ratio = 1.5
+			img_scaled = cv2.resize(img, (0,0), fx=ratio, fy=ratio)
+			offset_h = int(((height*ratio) - height)/2)
+			offset_w = int(((width*ratio) - width)/2)
+
+			dst = img_scaled[offset_h:(height+offset_h), offset_w:(width+offset_w)]
+			cv2.imwrite("{}/z2_{}".format(image_path, image_name), dst)
+
+			ratio = 2
+			img_scaled = cv2.resize(img, (0,0), fx=ratio, fy=ratio)
+			offset_h = int(((height*ratio) - height)/2)
+			offset_w = int(((width*ratio) - width)/2)
+
+			dst = img_scaled[offset_h:(height+offset_h), offset_w:(width+offset_w)]
+			cv2.imwrite("{}/z3_{}".format(image_path, image_name), dst)
 
 
 def perspective(links_liste):
@@ -135,25 +162,30 @@ def perspective(links_liste):
 		image_name = link.split("/")[-1]
 		image_path = os.path.dirname(link)
 
-		if not image_name.startswith(("p_")):
+		if not image_name.startswith(("p1_", "p2_")):
 			img = cv2.imread(link,1)
 			height, width = img.shape[:2]
 			image_center = (width / 2, height / 2)
 
-			pts1 = np.float32([[50,50],[width-100,100],[77,height-80],[width,height]])
+			pts1 = np.float32([[0,0],[width-100,100],[50,height-50],[width,height]])
+			pts2 = np.float32([[0,0],[width,0],[0,height],[width,height]])
+			M = cv2.getPerspectiveTransform(pts1,pts2)
+			dst = cv2.warpPerspective(img,M,(width, height))
+			cv2.imwrite("{}/p1_{}".format(image_path, image_name), dst)
+
+			pts1 = np.float32([[50,50],[width,0],[0,height],[width-100,height-100]])
 			pts2 = np.float32([[0,0],[width,0],[0,height],[width,height]])
 
 			M = cv2.getPerspectiveTransform(pts1,pts2)
 			dst = cv2.warpPerspective(img,M,(width, height))
-
-			cv2.imwrite("{}/p_{}".format(image_path, image_name), dst)
+			cv2.imwrite("{}/p2_{}".format(image_path, image_name), dst)
 
 def noise(links_liste):
 	for link in links_liste:
 		image_name = link.split("/")[-1]
 		image_path = os.path.dirname(link)
 
-		if not image_name.startswith(("nd_", "nl_")):
+		if not image_name.startswith(("n1_", "n2_", "n3_", "n4_")):
 			img = cv2.imread(link,1)
 			row,col,ch= img.shape
 			var = 100
@@ -162,33 +194,59 @@ def noise(links_liste):
 			gauss = np.random.normal(80, sigma,(row,col,ch))
 			gauss = gauss.reshape(row,col,ch)
 			dst = img + gauss
-			cv2.imwrite("{}/nl_{}".format(image_path, image_name), dst)
+			cv2.imwrite("{}/n1_{}".format(image_path, image_name), dst)
 
 			gauss = np.random.normal(-60, sigma,(row,col,ch))
 			gauss = gauss.reshape(row,col,ch)
 			dst = img + gauss
-			cv2.imwrite("{}/nd_{}".format(image_path, image_name), dst)
+			cv2.imwrite("{}/n2_{}".format(image_path, image_name), dst)
+
+
+			var = 200
+			sigma = var**0.5
+			gauss = np.random.normal(0, sigma,(row,col,ch))
+			gauss = gauss.reshape(row,col,ch)
+			dst = img + gauss
+			cv2.imwrite("{}/n3_{}".format(image_path, image_name), dst)
+
+			var = 500
+			sigma = var**0.5
+			gauss = np.random.normal(0, sigma,(row,col,ch))
+			gauss = gauss.reshape(row,col,ch)
+			dst = img + gauss
+			cv2.imwrite("{}/n4_{}".format(image_path, image_name), dst)
+
+			var = 1000
+			sigma = var**0.5
+			gauss = np.random.normal(0, sigma,(row,col,ch))
+			gauss = gauss.reshape(row,col,ch)
+			dst = img + gauss
+			cv2.imwrite("{}/n4_{}".format(image_path, image_name), dst)
 
 
 
 images_links = get_images_link(DIR_PATH)
+print("# Flipping images ...")
+apply_flip(images_links)
+print("# Rotating images ...")
+apply_rotations(images_links)
 
-#print("# Change perspective ...")
-#perspective(images_links)
 
+images_links = get_images_link(DIR_PATH)
+print("# Change perspective ...")
+perspective(images_links)
+
+#images_links = get_images_link(DIR_PATH)
 print("# Zooming images ...")
 zoom(images_links)
 
+images_links = get_images_link(DIR_PATH)
 print("# Bluring images ...")
 blur(images_links)
 
-#images_links = get_images_link(DIR_PATH)
+images_links = get_images_link(DIR_PATH)
 print("# Add noise to images ...")
 noise(images_links)
 
 #images_links = get_images_link(DIR_PATH)
-#print("# Flipping images ...")
-#apply_flip(images_links)
 
-#print("# Rotating images ...")
-#apply_rotations(images_links)
