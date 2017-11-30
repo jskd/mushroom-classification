@@ -75,7 +75,7 @@ if __name__ == '__main__':
         directory = sys.argv[1]
         training_set_root = "./training-image-net-org/"
 
-        dataset_name = ["cactus", "flower"]
+        dataset_name = ["mushroom","cactus","flower"]
         for name in dataset_name:
             merge( training_set_root + name + '/origin/*',  training_set_root + name + '/merge.txt')
 
