@@ -246,4 +246,3 @@ print("# Add noise to images ...")
 noise(images_links)
 
 #images_links = get_images_link(DIR_PATH)
-

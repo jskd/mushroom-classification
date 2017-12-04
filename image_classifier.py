@@ -15,8 +15,8 @@ N_CLASSES = 17
 IMG_H = 64
 IMG_W = 64
 CHANNELS = 3
-batch_train_size = 256
-batch_test_size = 256
+batch_train_size = 16
+batch_test_size = 16
 
 def read_images(path, batch_size):
 	images, labels = [], []
@@ -54,7 +54,7 @@ X, Y = read_images(DATASET_TRAIN, batch_train_size)
 X_, Y_ = read_images(DATASET_TEST, batch_test_size)
 
 # Paramètres du model
-learning_rate = 0.001
+learning_rate = 0.0001
 dropout = 0.50
 num_steps = 20000
 display_step = 100
@@ -62,28 +62,30 @@ display_step = 100
 def convolutional_network(x, n_classes, dropout, reuse, is_training):
 	with tf.variable_scope('ConvNet', reuse=reuse):
 
+		regularizer = tf.contrib.layers.l2_regularizer(scale=0.1);
+
 		# Input Layer
-		c1 = tf.layers.conv2d(x, 96, 5, strides=(3, 3), activation=tf.nn.relu, padding="SAME")
+		c1 = tf.layers.conv2d(x, 64, 3, strides=(1,1), activation=tf.nn.relu, padding="SAME", kernel_regularizer=regularizer)
 		c1 = tf.layers.max_pooling2d(c1, 2, 2, padding="SAME")
-		#c1 = tf.nn.local_response_normalization(c1)
+		#c1 = tf.layers.dropout(c1, rate= 0.1, training=is_training)
 
-		c2 = tf.layers.conv2d(c1, 192, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
+
+		c2 = tf.layers.conv2d(c1, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME", kernel_regularizer=regularizer)
 		c2 = tf.layers.max_pooling2d(c2, 2, 2, padding="SAME")
-		#c2 = tf.nn.local_response_normalization(c2)
+		#c2 = tf.layers.dropout(c2, rate= 0.2, training=is_training)
 
-		c3 = tf.layers.conv2d(c2, 384, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME")
+
+		c3 = tf.layers.conv2d(c2, 256, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME", kernel_regularizer=regularizer)
 		c3 = tf.layers.max_pooling2d(c3, 2, 2, padding="SAME")
+		c3 = tf.layers.dropout(c3, rate= 0.2, training=is_training)
 
 		fc1 = tf.contrib.layers.flatten(c3)
 		# Fully connecter layer
-		fc1 = tf.layers.dense(fc1, 1024, activation=tf.nn.relu)
-		fc1 = tf.layers.dropout(fc1, rate=dropout, training=is_training)
-
-		fc2 = tf.layers.dense(fc1, 512, activation=tf.nn.relu)
-		fc2 = tf.layers.dropout(fc2, rate=(dropout-0.25), training=is_training)
+		fc1 = tf.layers.dense(fc1, 512, activation=tf.nn.relu)
+		fc1 = tf.layers.dropout(fc1, rate=0.75, training=is_training)
 
 		# Output layer
-		out = tf.layers.dense(fc2, n_classes)
+		out = tf.layers.dense(fc1, n_classes)
 		if not is_training : out = tf.nn.softmax(out)
 
 
@@ -99,6 +101,7 @@ logits_test = convolutional_network(X_, N_CLASSES, dropout, reuse=True, is_train
 # Optimizer
 loss_op = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits_train, labels=Y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
+#optimizer = tf.train.RMSPropOptimizer(learning_rate=learning_rate)
 train_op = optimizer.minimize(loss_op)
 
 # Evaluation training
@@ -131,8 +134,8 @@ with tf.Session() as sess:
 				time_end = time.time()
 
 				train, loss, t_acc, r_acc = sess.run([train_op, loss_op, accuracy_training, accuracy_test])
-				print("  -> Step {} : loss({:.2f}%) t_accuracy({:.2f}%) r_accuracy({:.2f}%) in {:.2f} min".format(
-					step, loss*100, t_acc*100, r_acc*100, ((time_end - time_begin) / 60) ))
+				print("  -> Step {} : loss({:.2f}%) t_accuracy({:.2f}%) r_accuracy({:.2f}%) delta({:.2f}) time({:.2f} min)".format(
+					step, loss*100, t_acc*100, r_acc*100, (t_acc*100) - (r_acc*100), ((time_end - time_begin) / 60) ))
 
 				time_begin = time.time()
 
