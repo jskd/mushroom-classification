@@ -40,5 +40,5 @@ Lance l'apprentissage du réseau et le test
 
 ## Supression des images corrompue
 
-* jpeginfo -d training_set/**/*.jpg
-* jpeginfo -d test_set/**/*.jpg
+* jpeginfo -d **/*.jpg
+* jpeginfo -c **/*.jpg | grep ERROR
