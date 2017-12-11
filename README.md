@@ -37,3 +37,8 @@ Lance l'apprentissage du réseau et le test
 * unidecode
 * python-magic
 * glob2
+
+## Supression des images corrompue
+
+* jpeginfo -d training_set/**/*.jpg
+* jpeginfo -d test_set/**/*.jpg
