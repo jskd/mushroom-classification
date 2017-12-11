@@ -7,8 +7,8 @@ from glob import glob
 
 def training_slit(in_dir, out_dir, percent):
 
-    TRAINING_DIR = out_dir + "/training/"
-    TEST_DIR = out_dir + "/test/"
+    TRAINING_DIR = out_dir + "/training_set/"
+    TEST_DIR = out_dir + "/test_set/"
     PATTERN = "*.jpg"
     files = []
     test_set, training_set = [], []
