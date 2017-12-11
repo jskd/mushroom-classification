@@ -15,8 +15,8 @@ N_CLASSES = 17
 IMG_H = 64
 IMG_W = 64
 CHANNELS = 3
-batch_train_size = 16
-batch_test_size = 16
+batch_train_size = 128
+batch_test_size = 128
 
 def read_images(path, batch_size):
 	images, labels = [], []
@@ -54,9 +54,9 @@ X, Y = read_images(DATASET_TRAIN, batch_train_size)
 X_, Y_ = read_images(DATASET_TEST, batch_test_size)
 
 # Paramètres du model
-learning_rate = 0.0001
+learning_rate = 0.001
 dropout = 0.50
-num_steps = 20000
+num_steps = 25000
 display_step = 100
 
 def convolutional_network(x, n_classes, dropout, reuse, is_training):
@@ -65,28 +65,38 @@ def convolutional_network(x, n_classes, dropout, reuse, is_training):
 		regularizer = tf.contrib.layers.l2_regularizer(scale=0.1);
 
 		# Input Layer
-		c1 = tf.layers.conv2d(x, 64, 3, strides=(1,1), activation=tf.nn.relu, padding="SAME", kernel_regularizer=regularizer)
-		c1 = tf.layers.max_pooling2d(c1, 2, 2, padding="SAME")
-		#c1 = tf.layers.dropout(c1, rate= 0.1, training=is_training)
+		c1 = tf.layers.conv2d(x, 32, 3, strides=(1,1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		#c1 = tf.layers.conv2d(c1, 32, 3, strides=(1,1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		c1 = tf.layers.max_pooling2d(c1, 2, 2)
+		c1 = tf.layers.dropout(c1, rate= 0.1, training=is_training)
 
+		c2 = tf.layers.conv2d(c1, 64, 3, strides=(1, 1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		#c2 = tf.layers.conv2d(c2, 64, 3, strides=(1, 1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		#c2 = tf.layers.conv2d(c2, 64, 3, strides=(1, 1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		c2 = tf.layers.max_pooling2d(c2, 2, 2)
+		c2 = tf.layers.dropout(c2, rate= 0.25, training=is_training)
 
-		c2 = tf.layers.conv2d(c1, 128, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME", kernel_regularizer=regularizer)
-		c2 = tf.layers.max_pooling2d(c2, 2, 2, padding="SAME")
-		#c2 = tf.layers.dropout(c2, rate= 0.2, training=is_training)
+		c3 = tf.layers.conv2d(c2, 128, 3, strides=(1, 1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		#c3 = tf.layers.conv2d(c3, 128, 3, strides=(1, 1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		#c3 = tf.layers.conv2d(c3, 128, 3, strides=(1, 1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		c3 = tf.layers.max_pooling2d(c3, 2, 2)
+		c3 = tf.layers.dropout(c3, rate= 0.30, training=is_training)
 
-
-		c3 = tf.layers.conv2d(c2, 256, 3, strides=(1, 1), activation=tf.nn.relu, padding="SAME", kernel_regularizer=regularizer)
-		c3 = tf.layers.max_pooling2d(c3, 2, 2, padding="SAME")
-		c3 = tf.layers.dropout(c3, rate= 0.2, training=is_training)
+		#c4 = tf.layers.conv2d(c3, 512, 3, strides=(1, 1), activation=tf.nn.relu, kernel_regularizer=regularizer)
+		#c4 = tf.layers.max_pooling2d(c4, 2, 2)
+		#c4 = tf.layers.dropout(c4, rate= 0.3, training=is_training)
 
 		fc1 = tf.contrib.layers.flatten(c3)
-		# Fully connecter layer
+		# Fully connected layer
 		fc1 = tf.layers.dense(fc1, 512, activation=tf.nn.relu)
 		fc1 = tf.layers.dropout(fc1, rate=0.75, training=is_training)
 
+		fc2 = tf.layers.dense(fc1, 512, activation=tf.nn.relu)
+		fc2 = tf.layers.dropout(fc2, rate=0.75, training=is_training)
+
 		# Output layer
-		out = tf.layers.dense(fc1, n_classes)
-		if not is_training : out = tf.nn.softmax(out)
+		out = tf.layers.dense(fc2, n_classes)
+		if not is_training : out = tf.nn.softmax(out, name="out")
 
 
 	return out
@@ -114,6 +124,7 @@ accuracy_test = tf.reduce_mean(tf.cast(correct_pred_test, tf.float32))
 
 # Initialisation
 init = tf.global_variables_initializer()
+saver = tf.train.Saver()
 
 with tf.Session() as sess:
 	sess.run(init)
@@ -130,6 +141,7 @@ with tf.Session() as sess:
 		time_begin = time.time()
 		for step in range(1, num_steps+1):
 			if step % display_step == 0:
+				save_path = saver.save(sess, "saved_models/model.ckpt")
 
 				time_end = time.time()
 
@@ -142,8 +154,11 @@ with tf.Session() as sess:
 			else:
 				sess.run(train_op)
 
+		save_path = saver.save(sess, "saved_models/model_final.ckpt")
+
 	except Exception as e:
 		print(e)
+		save_path = saver.save(sess, "saved_models/model.ckpt")
 		coord.request_stop()
 		coord.join(threads)
 
