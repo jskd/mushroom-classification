@@ -42,3 +42,6 @@ Lance l'apprentissage du réseau et le test
 
 * jpeginfo -d **/*.jpg
 * jpeginfo -c **/*.jpg | grep ERROR
+* A suppr à la main
+* jpeginfo -c **/*.jpg | grep WARNING
+* A suppr à la main
