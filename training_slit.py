@@ -1,12 +1,25 @@
 
 import os, sys, glob
 import random
+import ntpath
+from shutil import copyfile
+from glob import glob
 
 def training_slit(in_dir, out_dir, percent):
-    files = glob.glob(in_dir+"/*.jpg")
-    random.shuffle(files)
 
+    TRAINING_DIR = out_dir + "/training/"
+    TEST_DIR = out_dir + "/test/"
+    PATTERN = "*.jpg"
+    files = []
     test_set, training_set = [], []
+
+    os.makedirs(TRAINING_DIR, exist_ok=True)
+    os.makedirs(TEST_DIR, exist_ok=True)
+
+    for dir,_,_ in os.walk(in_dir):
+        files.extend(glob(os.path.join(dir, PATTERN)))
+
+    random.shuffle(files)
 
     for i, f in enumerate(files):
         if i < len(files) * percent:
@@ -14,9 +27,13 @@ def training_slit(in_dir, out_dir, percent):
         else:
             training_set.append(f)
 
-    print(len(test_set))
-    print(len(training_set))
+    for i, f in enumerate(test_set):
+        #copyfile(f, TEST_DIR +ntpath.basename(f) )
+        os.rename(f, TEST_DIR +ntpath.basename(f) )
 
+    for i, f in enumerate(training_set):
+        #copyfile(f, TRAINING_DIR +ntpath.basename(f) )
+        os.rename(f, TRAINING_DIR +ntpath.basename(f) )
 
 if __name__ == '__main__':
     if len(sys.argv) > 3 :
