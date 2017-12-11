@@ -5,7 +5,7 @@ import ntpath
 from shutil import copyfile
 from glob import glob
 
-def training_slit(in_dir, out_dir, percent):
+def training_split(in_dir, out_dir, percent):
 
     TRAINING_DIR = out_dir + "/training_set/"
     TEST_DIR = out_dir + "/test_set/"
@@ -40,7 +40,7 @@ if __name__ == '__main__':
         in_dir = sys.argv[1]
         out_dir = sys.argv[2]
         percent = float( int(sys.argv[3]) / 100)
-        training_slit(in_dir, out_dir, percent)
+        training_split(in_dir, out_dir, percent)
 
     else:
         print("Usage: training_slit <dir_in> <dir_out> <percent_in_training>")
